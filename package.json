@@ -1,0 +1,9 @@
+{
+  "name": "hassypanel-9",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "installopsec": "sudo pacman -S opsec"
+  }
+}

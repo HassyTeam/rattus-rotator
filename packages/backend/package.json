@@ -1,0 +1,27 @@
+{
+  "name": "backend",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@types/body-parser": "^1.19.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.2.0",
+    "@types/signale": "^1.4.7",
+    "body-parser": "^2.3.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "express-basic-auth": "^1.2.1",
+    "express-rate-limit": "^8.7.0",
+    "lru-cache": "^11.5.2",
+    "multer": "^2.3.0",
+    "signale": "^1.4.0"
+  }
+}

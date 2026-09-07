@@ -1,0 +1,116 @@
+/*@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');*/
+
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@font-face {
+  font-family: "Pixelated MS Sans Serif";
+  src: url("https://cdn.jsdelivr.net/npm/98.css@0.1.18/fonts/converted/ms_sans_serif.woff") format("woff");
+  src: url("https://cdn.jsdelivr.net/npm/98.css@0.1.18/fonts/converted/ms_sans_serif.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.fade-inup {
+  animation: 1.5s fadeInUp ease-out;
+}
+
+.pulse {
+  animation: 2s pulse2 infinite ease-in-out;
+}
+
+.gradient-move {
+  animation: 5s gradientMove infinite ease;
+  background-position: 0% 50%;
+  background-size: 400% 400%;
+}
+
+.car {
+  font-family: "Pixelated MS Sans Serif", sans-serif;
+}
+
+/*.font-comic {
+  font-family: "Comic Neue", "Comic Sans MS", "Comic Sans", cursive;
+}*/
+
+body, html {height: 100%; }
+
+#banner-background {
+  position: fixed;
+  pointer-events: none;
+  overflow: hidden;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  opacity: 8%;
+  mask-image: linear-gradient(0deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7))
+}
+
+#banner-background-inner {
+  color: white;
+  transform: rotate(-10deg) scale(1.5) translateY(-70px);
+  background-image: url('/big.png');
+  background-repeat: repeat;
+  width: 100vw;
+  height: 100vh;
+}
+
+#banner-background-animation {
+  animation: bg-move 6s infinite linear;
+  height: 100vh;
+}
+
+@keyframes bg-move {
+  from {
+    transform: translateX(0) translateY(0);
+  }
+
+  to {
+    transform: translateX(83px) translateY(107px);
+  }
+}
+
+@keyframes pulse2 {
+  0% {
+    transform: scale(1.1);
+  }
+  50% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    transform: translateY(25%);
+    opacity: 0;
+    overflow: hidden
+  }
+  100% {
+    transform: translateY(0%);
+    opacity: 1;
+    overflow: auto
+  }
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 50% 0%;
+  }
+  50% {
+    background-position: 50% 100%; 
+  }
+  100% {
+    background-position: 50% 0%; 
+  }
+}

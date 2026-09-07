@@ -14,7 +14,7 @@ spins rats to make music :3
 The system infrastructure is as follows:
 **Frontend** -> **Backend** -> **Serial Controller** -> Motor Controllers (4*5 A4988 drivers) -> 20 motors 
 
-- **Serial Controller** (*python*): This one controls the motor controllers basically relaying the backend with a WebSocket.
+- **Serial Controller** (*python*): This one controls the motor controllers basically relaying the backend with a WebSocket. (not currently in the repo, adding later)
 - **Frontend** (*react*): Sends stuff to the backend. (/packages/nezumifrontend)
 - **Backend** (*express.js*): everything else. (/packages/backend)
 

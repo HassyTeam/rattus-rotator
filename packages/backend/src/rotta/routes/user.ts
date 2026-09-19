@@ -3,7 +3,7 @@ import { rateLimit } from 'express-rate-limit'
 import multer from "multer";
 import crypto from "node:crypto"
 import { logger } from "../../logger";
-import { addItem, getItem, getQueue } from "../queue";
+import { addItem, getItem, getItemListType, getQueue, removeItem } from "../queue";
 import { LRUCache } from "lru-cache";
 
 const upload = multer({
@@ -96,11 +96,23 @@ userRouter.get("/queue", async (req, res) => {
 
 userRouter.get("/song/:song", async (req, res) => {
     const id = req.params.song;
-
+    
     const item = await getItem(id);
     if (item) {
         const {path, fileName, ...rest} = item;
         res.json(rest)
+    } else {
+        res.status(404).json({ error: "song not found" })
+    }
+});
+
+userRouter.delete("/song/:song", async (req, res) => {
+    const id = req.params.song;
+
+    const item = await getItemListType(id);
+    if (item) {
+        await removeItem(id, item.list);
+        res.json({ status: "success" })
     } else {
         res.status(404).json({ error: "song not found" })
     }

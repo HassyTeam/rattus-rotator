@@ -67,7 +67,7 @@ export default function App() {
         }
     };
 
-    useEffect(() => {
+    function previewParse(midi: File | null) {
         if (midi) {
             const reader = new FileReader();
             reader.onload = function (e) {
@@ -79,7 +79,10 @@ export default function App() {
             };
             reader.readAsArrayBuffer(midi);
         }
-    }, [midi, parsingMode])
+    }
+    useEffect(() => {
+        previewParse(midi);
+    }, [parsingMode])
 
     const maxStepFreq = 1445;
 
@@ -216,7 +219,7 @@ export default function App() {
                     />
                     <Dialog onOpenChange={() => {setPreviewPlaying(false)}}>
                         <DialogTrigger disableButtonEnhancement>
-                            <Button disabled={midi ? false : true}>Esikuuntele</Button>
+                            <Button disabled={midi ? false : true} onClick={() => previewParse(midi)}>Esikuuntele</Button>
                         </DialogTrigger>
                         <DialogSurface>
                             <DialogBody>

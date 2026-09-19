@@ -76,7 +76,7 @@ async function persist(type: QueueType, queue2: QueueItem[]) {
     }
 }
 
-export async function getQueue(type: QueueType): Promise<QueueItem[]> {
+export async function getQueue(type: QueueType) {
     await ensureLoaded();
 
     if (type === "pending") {
@@ -93,7 +93,7 @@ async function persistItems(itemsList2: ListItem[]) {
     await write(ITEMS_LIST_PATH, JSON.stringify(itemsList, (_key, value) => (value === "") ? null : value, 2));
 }
 
-export async function getItemsList(): Promise<ListItem[]> {
+export async function getItemsList() {
     await ensureLoaded();
 
     return itemsList;
@@ -101,15 +101,20 @@ export async function getItemsList(): Promise<ListItem[]> {
 
 // queue management functions
 
-export async function getItem(id: string, queueType?: QueueType): Promise<QueueItem | undefined> {
+export async function getItemListType(id: string) {
+    const itemsList = await getItemsList();
+
+    return itemsList.find((i) => i.id === id);
+}
+
+export async function getItem(id: string, queueType?: QueueType) {
     if (queueType) {
         const queue = await getQueue(queueType);
 
         return queue.find((i) => i.id === id);
     } else {
-        const itemsList = await getItemsList();
-
-        const item = itemsList.find((i) => i.id === id);
+        const item = await getItemListType(id);
+        
         if (item) {
             const queue = await getQueue(item.list);
 
@@ -120,7 +125,7 @@ export async function getItem(id: string, queueType?: QueueType): Promise<QueueI
     }
 }
 
-export async function addItem(item: Optionalize<QueueItem, "id" | "addedAt">, queueType: QueueType): Promise<QueueItem> {
+export async function addItem(item: Optionalize<QueueItem, "id" | "addedAt">, queueType: QueueType) {
     const queue = await getQueue(queueType);
     const itemsList = await getItemsList();
 
@@ -139,7 +144,7 @@ export async function addItem(item: Optionalize<QueueItem, "id" | "addedAt">, qu
     return full;
 }
 
-export async function removeItem(id: string, queueType: QueueType): Promise<boolean> {
+export async function removeItem(id: string, queueType: QueueType) {
     let queue = await getQueue(queueType);
     let itemsList = await getItemsList();
 

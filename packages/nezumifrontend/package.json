@@ -17,13 +17,14 @@
     "@tailwindcss/vite": "^4.3.3",
     "@tonejs/midi": "^2.0.28",
     "@types/three": "^0.185.4",
+    "midiparser": "workspace:*",
+    "raindrop-fx": "^1.0.8",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router": "^8.3.0",
     "tailwindcss": "^4.3.3",
     "three": "^0.185.1",
-    "tone": "^15.1.22",
-    "midiparser": "workspace:*"
+    "tone": "^15.1.22"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",

@@ -6,9 +6,8 @@ import { BrowserRouter, Route, Routes } from 'react-router'
 import './index.css'
 import App from './App.tsx'
 import Queue from './Queue.tsx'
-import Visualizer from './Visualizer.tsx'
 import Layout from './Layout.tsx'
-import { FluentProvider, teamsDarkTheme } from '@fluentui/react-components'
+import { FluentProvider, teamsLightTheme } from '@fluentui/react-components'
 
 
 function getYourIds(): Array<string> {
@@ -45,20 +44,14 @@ function IdsContextHandler({ children }: { children: React.ReactNode }) {
 
 
 createRoot(document.getElementById('root')!).render(
-    <FluentProvider theme={teamsDarkTheme}>
+    <FluentProvider theme={teamsLightTheme}>
       <Suspense fallback={<Loading />}>
         <IdsContextHandler>
-          <div id="banner-background">
-            <div id="banner-background-animation">
-              <div id="banner-background-inner"></div>
-            </div>
-          </div>
           <BrowserRouter>
             <Layout>
               <Routes>
                 <Route index element={<App />} />
                 <Route path="queue" element={<Queue />} />
-                <Route path="visualizer" element={<Visualizer />} />
               </Routes>
             </Layout>
           </BrowserRouter>

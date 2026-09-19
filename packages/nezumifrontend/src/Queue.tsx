@@ -34,7 +34,7 @@ export default function Queue() {
         <div className="text-left items-start flex flex-col gap-4 w-full *:w-full">
             <Text align="start" weight="bold" size={600}>Kappalejono:</Text>
             <List className="flex flex-col gap-2">
-                {queue && queue.map((item, index) => (
+                {queue ? queue.length < 0 ? queue.map((item, index) => (
                     <ListItem key={index}>
                         <Card>
                             <CardHeader
@@ -45,7 +45,7 @@ export default function Queue() {
                             />
                         </Card>
                     </ListItem>
-                ))}
+                )) : <Text align="center" weight="bold" size={600}>Jono on tyhjä</Text> : <Text align="center" weight="bold" size={600}>Ladataan...</Text>}
             </List>
         </div>
     )

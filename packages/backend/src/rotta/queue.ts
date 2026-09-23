@@ -13,6 +13,8 @@ export interface QueueItem {
     reference: string | null,
     parsingMode: "simple" | "pertrack",
     excludedTracks?: number[],
+    minVelocity?: number,
+    transpose?: number,
     username: string | null, // note! different than user (because there is no login)
     rating: number | null,
 
@@ -51,6 +53,7 @@ let realQueue: QueueItem[] = [];
 let pendingQueue: QueueItem[] = [];
 let deniedQueue: QueueItem[] = [];
 let users: User[] = [];
+let current: QueueItem | null = null;
 let loaded = false;
 
 async function ensureLoaded() {
@@ -114,6 +117,14 @@ export async function listPublicQueue() {
     return queue.map(({path, fileName, status, statusText, statusChanged, rating, ...rest}) => rest)
 }
 
+export function setNowPlaying(item: QueueItem | null) {
+    current = item;
+}
+
+export function getNowPlaying() {
+    return current;
+}
+
 // queue management functions
 
 export async function getUser(id: string) {
@@ -155,9 +166,7 @@ export async function addItem(item: Optionalize<QueueItem, "id" | "addedAt">, qu
     const users = await getUsers();
 
     const userItemsIndex = users.findIndex((i) => i.id === item.user);
-    if (users[userItemsIndex] === undefined) {
-        throw new Error("User not found")
-    }
+    if (!users[userItemsIndex]) throw new Error("User not found");
 
     const id = item.id ?? crypto.randomUUID()
 
@@ -178,17 +187,66 @@ export async function removeItem(id: string, queueType: QueueType) {
     let queue = await getQueue(queueType);
     let users = await getUsers();
     
-    const item = await getItem(id, queueType);
-    if (item === undefined) return true;
+    const item = queue.find((i) => i.id === id);
+    if (!item) return true;
+
     const userItemsIndex = users.findIndex((i) => i.id === item.user);
-    if (users[userItemsIndex] === undefined) throw new Error("User not found");
+    if (!users[userItemsIndex]) throw new Error("User not found");
     
     const before = queue.length;
     const beforeItems = users[userItemsIndex].items.length;
+
     queue = queue.filter((i) => i.id !== id);
     users[userItemsIndex].items = users[userItemsIndex].items.filter((i) => i.id !== id);
 
     if (queue.length !== before) await persist(queueType, queue);
     if (users[userItemsIndex].items.length !== beforeItems) await persistUsers(users);
     return queue.length !== before && users[userItemsIndex].items.length !== beforeItems;
+}
+
+export async function takeItem(id: string, queueType: QueueType) {
+    let queue = await getQueue(queueType);
+
+    const item = queue.find((i) => i.id === id);
+    if (!item) return undefined;
+
+    const userItemsIndex = users.findIndex((i) => i.id === item.user);
+    if (!users[userItemsIndex]) throw new Error("User not found");
+
+    queue = queue.filter((i) => i.id !== id);
+    users[userItemsIndex].items = users[userItemsIndex].items.filter((i) => i.id !== id);
+
+    await persist(queueType, queue);
+    await persistUsers(users);
+    return item;
+}
+
+export async function takeFirst(queueType: QueueType) {
+    let queue = await getQueue(queueType);
+    let users = await getUsers();
+
+    const item = queue[0];
+    if (!item) return undefined;
+
+    const userItemsIndex = users.findIndex((i) => i.id === item.user);
+    if (!users[userItemsIndex]) throw new Error("User not found");
+
+    queue = queue.slice(1);
+    users[userItemsIndex].items = users[userItemsIndex].items.filter((i) => i.id !== item.id);
+
+    await persist(queueType, queue);
+    await persistUsers(users);
+    return item;
+}
+
+export async function requeueFront(item: QueueItem, queueType: QueueType) {
+    const queue = await getQueue(queueType);
+    const userItemsIndex = users.findIndex((i) => i.id === item.user);
+    if (!users[userItemsIndex]) throw new Error("User not found");
+
+    queue.unshift(item);
+    users[userItemsIndex].items.push({id: item.id, list: queueType});
+
+    await persist(queueType, queue);
+    await persistUsers(users);
 }

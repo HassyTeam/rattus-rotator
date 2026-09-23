@@ -7,7 +7,7 @@ import './index.css'
 import App from './App.tsx'
 import Queue from './Queue.tsx'
 import Layout from './Layout.tsx'
-import { FluentProvider, teamsLightTheme } from '@fluentui/react-components'
+import { FluentProvider, teamsLightTheme, Text } from '@fluentui/react-components'
 
 
 function getUserId(): string {
@@ -52,6 +52,8 @@ createRoot(document.getElementById('root')!).render(
             <Routes>
               <Route index element={<App />} />
               <Route path="queue" element={<Queue />} />
+              <Route path="control" element={<Text weight="bold" size={600}>wip</Text>} />
+              <Route path='*' element={<Text weight="bold" size={600}>Ei löytyny sivua sori :(</Text>} />
             </Routes>
           </Layout>
         </BrowserRouter>

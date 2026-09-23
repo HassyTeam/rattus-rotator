@@ -81,7 +81,7 @@ export default function OwnQueue() {
                                         <CardHeader
                                             header={<Text weight="semibold">{item.name} - {item.artist}</Text>}
                                             description={
-                                                <Caption1>Status: <FormatStatus>{item.status!}</FormatStatus></Caption1>
+                                                <Caption1>Status: <FormatStatus>{item.status!}</FormatStatus>{item.statusText && `, vastaus: ${item.statusText}`}</Caption1>
                                             }
                                             action={
                                                 <Button

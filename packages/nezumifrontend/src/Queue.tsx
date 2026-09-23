@@ -14,7 +14,8 @@ export interface QueueItem {
     rating: number | null,
 
     addedAt: string,
-    status?: string
+    status?: string,
+    statusText?: string
 }
 
 export default function Queue() {

@@ -44,20 +44,20 @@ function UserIdContextHandler({ children }: { children: React.ReactNode }) {
 
 
 createRoot(document.getElementById('root')!).render(
-    <FluentProvider theme={teamsLightTheme}>
-      <Suspense fallback={<Loading />}>
-        <UserIdContextHandler>
-          <BrowserRouter>
-            <Layout>
-              <Routes>
-                <Route index element={<App />} />
-                <Route path="queue" element={<Queue />} />
-              </Routes>
-            </Layout>
-          </BrowserRouter>
-        </UserIdContextHandler>
-      </Suspense>
-    </FluentProvider>
+  <FluentProvider theme={teamsLightTheme}>
+    <Suspense fallback={<Loading />}>
+      <UserIdContextHandler>
+        <BrowserRouter>
+          <Layout>
+            <Routes>
+              <Route index element={<App />} />
+              <Route path="queue" element={<Queue />} />
+            </Routes>
+          </Layout>
+        </BrowserRouter>
+      </UserIdContextHandler>
+    </Suspense>
+  </FluentProvider>
 )
 
 function Loading() {

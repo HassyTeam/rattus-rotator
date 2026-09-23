@@ -16,7 +16,7 @@ export interface NewMidi {
     overflowNotes: number
 }
 
-export default function parseMidi(midi: Midi, motors: number, algorithm: ("simple" | "pertrack" | "pertracksort"), excludedChords = [9]) {
+export default function parseMidi(midi: Midi, motors: number, algorithm: ("simple" | "pertrack" | "pertracksort"), excludedTracks = [9]) {
     const allNotes: AllNotes[] = [];
 
     if (algorithm == "pertracksort") {
@@ -26,7 +26,7 @@ export default function parseMidi(midi: Midi, motors: number, algorithm: ("simpl
     console.log("combining notes to one array")
     midi.tracks.forEach((track, index) => {
         console.log(track)
-        if (excludedChords.includes(track.channel)) {
+        if (excludedTracks.includes(track.channel)) {
             console.log("pöö")
             return;
         } else {

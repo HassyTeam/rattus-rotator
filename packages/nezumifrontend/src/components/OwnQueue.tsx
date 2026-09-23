@@ -12,11 +12,12 @@ import {
     Text
 } from "@fluentui/react-components";
 import { Delete20Regular } from "@fluentui/react-icons";
-import { useNavigate, useSearchParams } from "react-router";
-import { API_BASE } from "../apiBase";
+import { useSearchParams } from "react-router";
+import { API_BASE, WS_BASE } from "../apiBase";
 import type { QueueItem } from "../Queue";
-import { IdsContext, type IdsContextValue } from "../main";
+import { UserIdContext, type UserIdContextValue } from "../main";
 import { useState, useEffect, useContext } from "react";
+import useWebSocket from "../useWebSocket";
 
 function FormatStatus({ children }: { children: string }) {
     const val = children;
@@ -49,49 +50,21 @@ function FormatStatus({ children }: { children: string }) {
 
 export default function OwnQueue() {
     const [queue, setQueue] = useState<QueueItem[]>([]);
-    const { yourIds, setYourIds } = useContext(IdsContext) as IdsContextValue;
-    const navigate = useNavigate();
+    const { userId } = useContext(UserIdContext) as UserIdContextValue;
 
     const [searchParams] = useSearchParams();
-    
-    async function getQueue() {
-        yourIds.forEach(async (element) => {
-            const request = await fetch(`${API_BASE}/api/rotta/user/song/${element}`)
-            const response = await request.json();
 
-            if (request.ok) {
-                setQueue((prev) => [...prev, response]);
-            } else if (request.status === 404) {
-                setYourIds((ids) => {
-                    let removeIndex = ids.map(item => item).indexOf(element);
-
-                    (removeIndex >= 0) && ids.splice(removeIndex, 1);
-                    console.log(ids)
-                    return ids;
-                });
-                setQueue((items) => {
-                    let removeIndex = items.map(item => item.id).indexOf(element);
-
-                    (removeIndex >= 0) && items.splice(removeIndex, 1);
-                    console.log(items)
-                    return items;
-                });
-            }
-        });
-    }
-
-    useEffect(() => {
-        getQueue();
-    }, [navigate]);
+    useWebSocket(`${WS_BASE}/api/ws/user?id=${userId}`, {
+        onMessage: (data: any) => setQueue(data.items),
+    });
 
     async function deleteItem(id: string) {
-        const request = await fetch(`${API_BASE}/api/rotta/user/song/${id}`, {
+        const request = await fetch(`${API_BASE}/api/rotta/user/song/${userId}/${id}`, {
             method: "DELETE"
         });
 
         if (request.ok) {
-            console.log("peepeepoopoo")
-            await getQueue();
+            console.log("peepeepoopoo");
         }
     }
 

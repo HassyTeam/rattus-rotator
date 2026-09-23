@@ -10,35 +10,35 @@ import Layout from './Layout.tsx'
 import { FluentProvider, teamsLightTheme } from '@fluentui/react-components'
 
 
-function getYourIds(): Array<string> {
-    let yourIds = localStorage.getItem("yourIds");
-    if (yourIds === null) {
-        localStorage.setItem("yourIds", JSON.stringify([]));
-        yourIds = localStorage.getItem("yourIds");
+function getUserId(): string {
+    let userId = localStorage.getItem("userId");
+    if (userId === null) {
+        localStorage.setItem("userId", "");
+        userId = localStorage.getItem("userId");
     };
-    return JSON.parse(yourIds!);
+    return userId!.toString();
 }
 
-const defaultYourIds = getYourIds()
+const defaultuserId = getUserId()
 
-export interface IdsContextValue {
-  yourIds: string[],
-  setYourIds: Dispatch<SetStateAction<string[]>>
+export interface UserIdContextValue {
+  userId: string,
+  setUserId: Dispatch<SetStateAction<string>>
 }
 
-const IdsContext = createContext<IdsContextValue | null>(null);
+const UserIdContext = createContext<UserIdContextValue | null>(null);
 
-function IdsContextHandler({ children }: { children: React.ReactNode }) {
-  const [yourIds, setYourIds] = useState<string[]>(defaultYourIds);
+function UserIdContextHandler({ children }: { children: React.ReactNode }) {
+  const [userId, setUserId] = useState<string>(defaultuserId);
   
   useEffect(() => {
-    localStorage.setItem("yourIds", JSON.stringify(yourIds))
-  }, [yourIds]);
+    localStorage.setItem("userId", userId)
+  }, [userId]);
 
   return (
-    <IdsContext value={{ yourIds, setYourIds }}>
+    <UserIdContext value={{ userId, setUserId }}>
       {children}
-    </IdsContext>
+    </UserIdContext>
   )
 }
 
@@ -46,7 +46,7 @@ function IdsContextHandler({ children }: { children: React.ReactNode }) {
 createRoot(document.getElementById('root')!).render(
     <FluentProvider theme={teamsLightTheme}>
       <Suspense fallback={<Loading />}>
-        <IdsContextHandler>
+        <UserIdContextHandler>
           <BrowserRouter>
             <Layout>
               <Routes>
@@ -55,7 +55,7 @@ createRoot(document.getElementById('root')!).render(
               </Routes>
             </Layout>
           </BrowserRouter>
-        </IdsContextHandler>
+        </UserIdContextHandler>
       </Suspense>
     </FluentProvider>
 )
@@ -69,4 +69,4 @@ function Loading() {
   )
 }
 
-export { IdsContext };
+export { UserIdContext };

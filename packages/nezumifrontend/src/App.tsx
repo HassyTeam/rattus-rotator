@@ -7,7 +7,7 @@ import { useState, useEffect, useRef, useContext } from "react";
 import * as Tone from "tone";
 import { API_BASE } from "./apiBase";
 import { useNavigate } from "react-router";
-import { IdsContext, type IdsContextValue } from "./main";
+import { UserIdContext, type UserIdContextValue } from "./main";
 
 function midiToFreq(midiNote: number): number {
     return 440 * 2 ** ((midiNote - 69) / 12);
@@ -37,7 +37,7 @@ export default function App() {
     const synthsRef = useRef<Tone.Synth[]>([]);
     const partsRef = useRef<Tone.Part[]>([]);
 
-    const { setYourIds } = useContext(IdsContext) as IdsContextValue;
+    const { userId, setUserId } = useContext(UserIdContext) as UserIdContextValue;
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -56,14 +56,28 @@ export default function App() {
         data.append("rating", rating ? rating.toString() : "");
         console.log(data)
 
+        let id = userId;
+
+        if (id === "") {
+            const request = await fetch(`${API_BASE}/api/rotta/user/account`, {
+                method: "POST"
+            });
+
+            if (request.ok) {
+                id = (await request.json()).id;
+                setUserId(id);
+            }
+        }
+
+        data.append("user", id);
+
         const request = await fetch(`${API_BASE}/api/rotta/user/ehdotus`, {
             body: data, method: "POST"
         });
 
         if (request.ok) {
             const response = await request.json();
-            setYourIds((prev) => [...prev, response.id]);
-            navigate(`/queue?popupIndex=${response.id}`, { replace: true })
+            navigate(`/queue?popupIndex=${response.id}`)
         }
     };
 

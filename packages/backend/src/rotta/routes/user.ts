@@ -3,8 +3,9 @@ import { rateLimit } from 'express-rate-limit'
 import multer from "multer";
 import crypto from "node:crypto"
 import { logger } from "../../logger";
-import { addItem, getItem, getItemListType, getQueue, removeItem } from "../queue";
+import { addItem, addUser, getUser, removeItem } from "../queue";
 import { LRUCache } from "lru-cache";
+import { broadcastQueue, broadcastUserQueue } from "../websockets";
 
 const upload = multer({
     storage: multer.diskStorage({
@@ -44,20 +45,27 @@ const requestCache = new LRUCache({
 const preventDuplicateRequests = (req: Request, res: Response, next: NextFunction) => {
   const userId = req.ip || crypto.randomUUID(); // ip or not worki 
   
-  const currentRequestSignature = JSON.stringify({
+  const currentRequestSignature = {
     method: req.method,
     url: req.originalUrl,
     body: req.body
-  });
+  };
 
-  const previousRequestSignature = requestCache.get(userId);
+  const previousRequestSignatureRaw = requestCache.get(userId);
+  if (!previousRequestSignatureRaw) { next(); return };
+  const previousRequestSignature = JSON.parse(previousRequestSignatureRaw.toString());
+  const prevStatus = previousRequestSignature.status;
+  delete previousRequestSignature.status;
 
-  if (previousRequestSignature === currentRequestSignature) {
-    return res.status(409).json({ error: 'dingdong :(' });
+  if (JSON.stringify(previousRequestSignature) === JSON.stringify(currentRequestSignature) && prevStatus === 200) {
+    return res.status(409).json({ error: 'teit saman pyynnön uudelleen. älä :)' });
   }
 
-  requestCache.set(userId, currentRequestSignature);
+  requestCache.set(userId, JSON.stringify(currentRequestSignature));
   next();
+  res.on('finish', () => {
+    requestCache.set(userId, JSON.stringify({...currentRequestSignature, status: res.status}));
+  });
 };
 
 const userRouter = express.Router();
@@ -69,9 +77,10 @@ userRouter.post("/ehdotus", limiter, preventDuplicateRequests, upload.single("mi
     }
     
     try {
-        const { song, artist, reference, parsingMode, username, rating } = req.body;
+        const { user, song, artist, reference, parsingMode, username, rating } = req.body;
 
         const queueObj = await addItem({
+            user,
             name: song, artist, reference,
             parsingMode, username,
 
@@ -82,6 +91,7 @@ userRouter.post("/ehdotus", limiter, preventDuplicateRequests, upload.single("mi
             statusText: null
         }, "pending")
 
+        await broadcastUserQueue(user);
         res.json({ status: "success", id: queueObj.id })
     } catch (err) {
         res.status(500).json({ error: "error when adding to queue" });
@@ -89,33 +99,30 @@ userRouter.post("/ehdotus", limiter, preventDuplicateRequests, upload.single("mi
     }
 });
 
-userRouter.get("/queue", async (req, res) => {
-    const queue = await getQueue("approved");
-    res.json(queue.map(({path, fileName, status, statusText, statusChanged, rating, id, ...rest}) => rest))
+userRouter.post("/account", limiter, async (req, res) => {
+    try {
+        const userId = await addUser();
+        
+        res.json({ status: "success", id: userId })
+    } catch (err) {
+        res.status(500).json({ error: "error adding account" });
+        logger.error(err)
+    }
 })
 
-userRouter.get("/song/:song", async (req, res) => {
-    const id = req.params.song;
-    
-    const item = await getItem(id);
-    if (item) {
-        const {path, fileName, ...rest} = item;
-        res.json(rest)
-    } else {
-        res.status(404).json({ error: "song not found" })
-    }
-});
-
-userRouter.delete("/song/:song", async (req, res) => {
+userRouter.delete("/song/:user/:song", async (req, res) => {
+    const userId = req.params.user;
     const id = req.params.song;
 
-    const item = await getItemListType(id);
-    if (item) {
-        await removeItem(id, item.list);
+    const user = await getUser(userId);
+    if (user !== undefined && user.items.find((i) => i.id === id) !== undefined) {
+        await removeItem(id, user.items.find((i) => i.id === id)!.list);
+        await broadcastUserQueue(userId);
+        await broadcastQueue();
         res.json({ status: "success" })
     } else {
         res.status(404).json({ error: "song not found" })
-    }
+    };
 })
 
 export default userRouter;

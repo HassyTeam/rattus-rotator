@@ -6,6 +6,7 @@ import { logger } from "../../logger";
 import { addItem, getItem, getQueue, removeItem, type QueueType } from "../queue";
 import { rm, rename } from "node:fs/promises";
 import path from "node:path";
+import { broadcastQueue, broadcastUserQueue } from "../websockets";
 
 const adminRouter = express.Router();
 
@@ -46,7 +47,7 @@ async function myAuthorizer(username: string, password: string, cb: (...any: any
 
 adminRouter.post("/luvananto", upload.single("midi"), async (req, res) => {
     try {
-        const { id, song, artist, reference, parsingMode, username, rating, status, statusText } = req.body;
+        const { id, song, artist, reference, parsingMode, username, rating, status, statusText, excludedTracks } = req.body;
         // horrible hardcoding (fix pls todo :))
         if (status !== "approved" && status !== "denied" && status !== "pending") {
             res.status(400).json({ error: "invalid status (use approved, denied or pending)", status });
@@ -91,11 +92,13 @@ adminRouter.post("/luvananto", upload.single("midi"), async (req, res) => {
 
         const queueObj = await addItem({
             id: origObj.id,
+            user: origObj.user,
             name: song ?? origObj.name,
             artist: artist ?? origObj.artist,
 
             reference: reference ?? origObj.reference,
             parsingMode: parsingMode ?? origObj.parsingMode,
+            excludedTracks,
             username: username ?? origObj.username,
             rating: Number(rating) ?? origObj.rating,
 
@@ -107,8 +110,9 @@ adminRouter.post("/luvananto", upload.single("midi"), async (req, res) => {
             addedAt: origObj.addedAt
         }, status as QueueType);
 
+        await broadcastUserQueue(origObj.user);
+        await broadcastQueue();
         res.json({ status: "success", id: queueObj.id });
-        
     } catch (err) {
         res.status(500).json({ error: "error when adding to queue" });
         logger.error(err)

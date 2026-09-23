@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/ws": "^8.18.1"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -22,6 +23,7 @@
     "express-rate-limit": "^8.7.0",
     "lru-cache": "^11.5.2",
     "multer": "^2.3.0",
-    "signale": "^1.4.0"
+    "signale": "^1.4.0",
+    "ws": "^8.21.3"
   }
 }

@@ -23,6 +23,7 @@ Right now the råtator works using five 3D printer motherboards as motor control
 Right now it's designed to work with Creality v1.1.4 and v2.1 boards.
 
 Here is the case design for the motor controllers:
+![alt text](https://raw.githubusercontent.com/HassyTeam/rattus-rotator/refs/heads/main/crealityV1.1.4case.png "Controller case drawing image")
 
 
 ## Licensing

@@ -12,11 +12,18 @@ spins rats to make music :3
 
 ## How does it work?
 The system infrastructure is as follows:
-**Frontend** -> **Backend** -> **Serial Controller** -> Motor Controllers (4*5 A4988 drivers) -> 20 motors 
+**Frontend** -> **Backend** -> **Serial Controller** -> Motor Controllers (5*4 A4988 drivers) -> 20 motors 
 
 - **Serial Controller** (*python*): This one controls the motor controllers basically relaying the backend with a WebSocket. (not currently in the repo, adding later)
 - **Frontend** (*react*): Sends stuff to the backend. (/packages/nezumifrontend)
 - **Backend** (*express.js*): everything else. (/packages/backend)
+
+## Hardware
+Right now the råtator works using five 3D printer motherboards as motor controllers.
+Right now it's designed to work with Creality v1.1.4 and v2.1 boards.
+
+Here is the case design for the motor controllers:
+
 
 ## Licensing
 The code in this repository is currently under AGPL-3.0. See the LICENSE file for more information.

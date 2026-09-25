@@ -1,5 +1,5 @@
 import { List, ListItem, Card, CardHeader, Caption1, Text } from "@fluentui/react-components"
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { WS_BASE } from "./apiBase";
 import useWebSocket from "./useWebSocket";
 
@@ -25,15 +25,10 @@ export default function Queue() {
         onMessage: (data: any) => {
             console.log(data.type)
             if (data.type === "queue") {
-                console.log("mitä vittua")
                 setQueue(data.items)
             }
         }
     });
-
-    useEffect(() => {
-        console.log("ass", queue)
-    }, [queue])
 
     return (
         <div className="text-left items-start flex flex-col gap-4 w-full *:w-full">

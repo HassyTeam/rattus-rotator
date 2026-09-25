@@ -3,7 +3,7 @@ import basicAuth from "express-basic-auth";
 import multer from "multer";
 import crypto from "node:crypto"
 import { logger } from "../../logger";
-import { addItem, getItem, getQueue, removeItem, requeueFront, setNowPlaying, takeItem, type QueueType } from "../queue";
+import { addItem, getItem, getQueue, removeItem, requeueFront, setNowPlaying, takeFirst, takeItem, type QueueType } from "../queue";
 import { rm, rename } from "node:fs/promises";
 import path from "node:path";
 import { broadcastQueue, broadcastUserQueue } from "../websockets";
@@ -152,6 +152,33 @@ adminRouter.post("/play/:id", async (req, res) => {
         logger.error(err);
         return;
     }
+});
+
+adminRouter.post("/playnext", async (req, res) => {
+    const next = await takeFirst("approved");
+    if (!next) {
+        res.status(404).json({ error: "not found" });
+        return;
+    }
+
+    try {
+        const tracks = (await parseTracks(next.path as string, next.parsingMode, next.excludedTracks)).tracks;
+
+        ohjainBussi.play({ id: next.id, name: next.name, tracks, minVelocity: next.minVelocity || 0 });
+        setNowPlaying(next);
+
+        await broadcastUserQueue(next.user);
+        await broadcastQueue();
+        res.json({ ok: true });
+    } catch (err) {
+        await requeueFront(next, "approved");
+        await broadcastUserQueue(next.user);
+        await broadcastQueue();
+        
+        res.status(500).json({ error: "error playing song" });
+        logger.error(err);
+        return;
+    }
 })
 
 adminRouter.post("/control", async (req, res) => {
@@ -178,5 +205,14 @@ adminRouter.post("/control", async (req, res) => {
         logger.error(err)
     }
 });
+
+adminRouter.get("/song/:queue/:id", async (req, res) => {
+    const next = await getItem(req.params.id, req.params.queue as QueueType)
+    if (!next) {
+        res.status(404).json({ error: "not found" });
+        return;
+    }
+    res.json(next);
+})
 
 export default adminRouter;

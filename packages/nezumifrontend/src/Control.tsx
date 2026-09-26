@@ -28,7 +28,7 @@ export function Control() {
     return (
         <div className="flex flex-col gap-2">
             <div className="flex gap-2">
-                <Button>Play first on queue</Button>
+                <Button onClick={async () => {await fetch(`${API_BASE}/api/rotta/admin/playfirst`, {method: "POST"})}}>Play first on queue</Button>
                 <Button>Pause</Button>
                 <Button>Resume</Button>
             </div>

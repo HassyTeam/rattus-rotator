@@ -1,6 +1,5 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "hassypanel-9",
@@ -20,6 +19,7 @@
         "express-basic-auth": "^1.2.1",
         "express-rate-limit": "^8.7.0",
         "lru-cache": "^11.5.2",
+        "midiparser": "workspace:*",
         "multer": "^2.3.0",
         "signale": "^1.4.0",
         "ws": "^8.21.3",
@@ -74,6 +74,7 @@
         "react-router": "^8.3.0",
         "tailwindcss": "^4.3.3",
         "three": "^0.185.1",
+        "three-stdlib": "^2.36.1",
         "tone": "^15.1.22",
       },
       "devDependencies": {

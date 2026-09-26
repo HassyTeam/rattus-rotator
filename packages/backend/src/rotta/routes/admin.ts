@@ -49,14 +49,14 @@ async function myAuthorizer(username: string, password: string, cb: (...any: any
 
 adminRouter.post("/luvananto", upload.single("midi"), async (req, res) => {
     try {
-        const { id, song, artist, reference, parsingMode, username, rating, status, statusText, excludedTracks, minVelocity, transpose } = req.body;
+        const { id, song, artist, reference, parsingMode, username, rating, status, oldStatus, statusText, excludedTracks, minVelocity, transpose, returnTo } = req.body;
         // horrible hardcoding (fix pls todo :))
         if (status !== "approved" && status !== "denied" && status !== "pending") {
             res.status(400).json({ error: "invalid status (use approved, denied or pending)", status });
             return;
         }
 
-        const origObj = await getItem(id, "pending");
+        const origObj = await getItem(id, oldStatus);
 
         if (!origObj) {
             res.status(400).json({ error: "song not found" });
@@ -91,7 +91,7 @@ adminRouter.post("/luvananto", upload.single("midi"), async (req, res) => {
             }
         }
 
-        await removeItem(id, "pending");
+        await removeItem(id, oldStatus);
 
         const queueObj = await addItem({
             id: origObj.id,
@@ -101,7 +101,9 @@ adminRouter.post("/luvananto", upload.single("midi"), async (req, res) => {
 
             reference: reference ?? origObj.reference,
             parsingMode: parsingMode ?? origObj.parsingMode,
-            excludedTracks, minVelocity, transpose,
+            excludedTracks: JSON.parse(excludedTracks),
+            minVelocity: Number(minVelocity),
+            transpose: Number(transpose),
             username: username ?? origObj.username,
             rating: Number(rating) ?? origObj.rating,
 
@@ -115,7 +117,7 @@ adminRouter.post("/luvananto", upload.single("midi"), async (req, res) => {
 
         await broadcastUserQueue(origObj.user);
         await broadcastQueue();
-        res.json({ status: "success", id: queueObj.id });
+        res.redirect(returnTo || "/");
     } catch (err) {
         res.status(500).json({ error: "error when adding to queue" });
         logger.error(err)

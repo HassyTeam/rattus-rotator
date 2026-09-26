@@ -88,9 +88,32 @@ export function Control() {
     )
 }
 
+export interface QueueItem2 {
+    id: string,
+    user: string, // note! different than username (because there is no login)
+    name: string,
+    artist: string,
+
+    reference: string | null,
+    parsingMode: "simple" | "pertrack",
+    excludedTracks?: number[],
+    minVelocity?: number,
+    transpose?: number,
+    username: string | null, // note! different than user (because there is no login)
+    rating: number | null,
+
+    path: string | null,
+    fileName: string | null,
+    status: "approved" | "denied" | "pending",
+    statusText: string | null,
+
+    statusChanged?: string,
+    addedAt: string;
+}
+
 export function ControlId() {
     let { id, queue } = useParams();
-    const [next, setNext] = useState();
+    const [next, setNext] = useState<QueueItem2>();
 
     useEffect(() => {
         async function getNext() {
@@ -106,10 +129,53 @@ export function ControlId() {
 
     return (
         <>
-        <pre>{JSON.stringify(next, undefined, 2)}</pre>
-        <form>
-            {/* can you pls do a form basically exactly like the one in app.tsx but it sends it to luvananto and defaults to the values in next. i'll do it if i can */}
-        </form>
+        {next ? (
+            <>
+            <pre>{JSON.stringify(next, undefined, 2)}</pre>
+            <form action={`${API_BASE}/api/rotta/admin/luvananto`} method="POST" encType="multipart/form-data">
+                <input type="hidden" name="returnTo" value={window.location.href} />
+                <input type="hidden" name="id" value={next.id} />
+                <input type="hidden" name="name" value={next.name} />
+                <label>name:</label>
+                <input className="border border-gray-600 p-0.5 rounded-sm" placeholder="name" name="name" defaultValue={next.name} />
+                <br className="my-2"/><label>artist:</label>
+                <input className="border border-gray-600 p-0.5 rounded-sm" placeholder="artist" name="artist" defaultValue={next.artist} />
+                <br className="my-2"/><label>reference:</label>
+                <input className="border border-gray-600 p-0.5 rounded-sm" placeholder="reference" name="reference" defaultValue={next.reference || ""} />
+                <br className="my-2"/><label>parsing mode:</label>
+                <select name="parsingMode" className="border border-gray-600 p-0.5 rounded-sm" defaultValue={next.parsingMode}>
+                    <option value="simple">simple</option>
+                    <option value="pertrack">pertrack</option>
+                </select>
+                <br className="my-2"/><label>excluded tracks:</label>
+                <input className="border border-gray-600 p-0.5 rounded-sm" placeholder="excludedTracks" name="excludedTracks" defaultValue={JSON.stringify(next.excludedTracks) || "[9]"} />
+                <br className="my-2"/><label>min velocity:</label>
+                <input className="border border-gray-600 p-0.5 rounded-sm" type="number" placeholder="minVelocity" name="minVelocity" defaultValue={next.minVelocity || "0"} />
+                <br className="my-2"/><label>transpose:</label>
+                <input className="border border-gray-600 p-0.5 rounded-sm" type="number" placeholder="transpose" name="transpose" defaultValue={next.transpose || "0"} />
+
+                <br className="my-2"/><label>username:</label>
+                <input className="border border-gray-600 p-0.5 rounded-sm" placeholder="username" name="username" defaultValue={next.username || ""} />
+                <br className="my-2"/><label>midi:</label>
+                <input className="border border-gray-600 p-0.5 rounded-sm" name="midi"
+                    type="file"
+                    accept="audio/midi,.mid,.midi"
+                />
+                <br />
+                <input type="hidden" name="oldStatus" value={next.status} />
+                <br className="my-2"/><label>status:</label>
+                <select name="status" className="border border-gray-600 p-0.5 rounded-sm" defaultValue={next.status}>
+                    <option value="pending">pending</option>
+                    <option value="approved">approved</option>
+                    <option value="denied">denied</option>
+                </select>
+                <br className="my-2"/>
+                <input className="border border-gray-600 p-0.5 rounded-sm" placeholder="statusText" name="statusText" defaultValue={next.statusText || ""} />
+                <br className="my-2"/>
+                <input className="border border-gray-600 p-0.5 rounded-sm" type="submit" />
+            </form>
+            </>
+        ) : <Text align="center" weight="bold" size={600}>Ladataan...</Text>}
         </>
     )
 }

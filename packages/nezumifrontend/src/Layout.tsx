@@ -45,7 +45,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         <img src="/title-alt.png" className="w-full" />
                         <img src="/nezumi2.png" className="bottom-[-3%] right-0 absolute w-2/7 pulse" />
                     </div>
-                    <img src="aka.png" className="w-full mb-8 mt-3 pointer-events-none" />
+                    <img src="/aka.png" className="w-full mb-8 mt-3 pointer-events-none" />
                     <OwnQueue />
                     {children}
                 </div>
